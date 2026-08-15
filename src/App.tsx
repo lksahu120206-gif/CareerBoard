@@ -636,7 +636,7 @@ function Sidebar({ dark, open, activeNav, onToggle, onNav, userName, userEmail, 
   return (
     <aside style={{
       width: open ? 220 : 0, flexShrink: 0, height: '100vh',
-position: 'relative', zIndex: 50,
+      position: 'relative', zIndex: 50,
       background: t.surface, borderRight: open ? `1px solid ${t.border}` : 'none',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
       pointerEvents: open ? 'auto' : 'none',
@@ -796,19 +796,16 @@ function ResumesView({ dark, session }: { dark: boolean; session: any }) {
       const fileName = `${Math.random()}.${fileExt}`
       const filePath = `${session.user.id}/${fileName}`
 
-      // 1. Upload file to Supabase Storage bucket
       const { error: uploadError } = await supabase.storage
         .from('resumes')
         .upload(filePath, file)
 
       if (uploadError) throw uploadError
 
-      // 2. Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('resumes')
         .getPublicUrl(filePath)
 
-      // 3. Save metadata to resumes table
       const sizeFormatted = `${Math.round(file.size / 1024)} KB`
       const { error: dbError } = await supabase.from('resumes').insert([{
         user_id: session.user.id,
@@ -1397,37 +1394,38 @@ export default function App() {
       />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-  {/* Header */}
-  <header style={{
-    minHeight: 64, flexShrink: 0, background: t.surface,
-    borderBottom: `1px solid ${t.border}`,
-    display: 'flex', alignItems: 'center', flexWrap: 'wrap', padding: '12px 28px', gap: 12,
-    transition: 'background 0.25s, border-color 0.25s',
-  }}>
-    {!sidebarOpen && <SidebarToggleBtn dark={dark} onToggle={() => setSidebarOpen(true)} />}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontFamily: "'Instrument Sans',sans-serif", fontSize: 17, fontWeight: 700, color: t.text, margin: 0, letterSpacing: -0.2 }}>
-              {PAGE_TITLES[activeNav]}
-            </h1>
-          </div>
-
-          {activeNav === 'dashboard' && (
-            <div style={{ position: 'relative', width: '100%', maxWidth: 240, flexGrow: 1 }}>
-              <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: t.textSubtle, pointerEvents: 'none' }}>
-                <IconSearch />
-              </span>
-              <input
-                value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search jobs or companies…"
-                style={{ width: '100%', height: 36, borderRadius: 8, border: `1px solid ${t.border}`, background: t.searchBg, paddingLeft: 34, paddingRight: 12, fontSize: 13, color: t.text, outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s, background 0.25s', fontFamily: "'Inter',sans-serif", boxSizing: 'border-box' }}
-                onFocus={e => { e.currentTarget.style.borderColor = t.focusBorder; e.currentTarget.style.boxShadow = `0 0 0 3px ${t.focusRing}`; e.currentTarget.style.background = t.searchFocusBg }}
-                onBlur={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = t.searchBg }}
-              />
+        {/* Header */}
+        <header style={{
+          minHeight: 64, flexShrink: 0, background: t.surface,
+          borderBottom: `1px solid ${t.border}`,
+          display: 'flex', alignItems: 'center', flexWrap: 'wrap', padding: '12px 28px', gap: 12,
+          transition: 'background 0.25s, border-color 0.25s',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {!sidebarOpen && <SidebarToggleBtn dark={dark} onToggle={() => setSidebarOpen(true)} />}
+              <h1 style={{ fontFamily: "'Instrument Sans',sans-serif", fontSize: 17, fontWeight: 700, color: t.text, margin: 0, letterSpacing: -0.2 }}>
+                {PAGE_TITLES[activeNav]}
+              </h1>
             </div>
-          )}
 
-          <DarkToggle dark={dark} onToggle={() => setDark(d => !d)} />
-          {activeNav === 'dashboard' && <NewAppButton dark={dark} onClick={() => setShowNewModal(true)} />}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginLeft: 'auto' }}>
+              {activeNav === 'dashboard' && (
+                <div style={{ position: 'relative', width: 200 }}>
+                  <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: t.textSubtle, pointerEvents: 'none' }}>
+                    <IconSearch />
+                  </span>
+                  <input
+                    value={search} onChange={e => setSearch(e.target.value)}
+                    placeholder="Search jobs…"
+                    style={{ width: '100%', height: 36, borderRadius: 8, border: `1px solid ${t.border}`, background: t.searchBg, paddingLeft: 34, paddingRight: 12, fontSize: 13, color: t.text, outline: 'none', fontFamily: "'Inter',sans-serif", boxSizing: 'border-box' }}
+                  />
+                </div>
+              )}
+              <DarkToggle dark={dark} onToggle={() => setDark(d => !d)} />
+              {activeNav === 'dashboard' && <NewAppButton dark={dark} onClick={() => setShowNewModal(true)} />}
+            </div>
+          </div>
         </header>
 
         {activeNav === 'dashboard' && (
@@ -1447,7 +1445,7 @@ export default function App() {
                 {filtered.length} total applications
               </div>
             </div>
-            {/* Grid Layout Container - removes horizontal scrollbar and fits all 5 columns cleanly */}
+            {/* Grid Layout Container */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '18px 28px 28px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, alignItems: 'flex-start' }}>
               {COLUMNS.map(col => (
                 <KanbanColumn
