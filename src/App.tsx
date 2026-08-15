@@ -636,6 +636,7 @@ function Sidebar({ dark, open, activeNav, onToggle, onNav, userName, userEmail, 
   return (
     <aside style={{
       width: open ? 220 : 0, flexShrink: 0, height: '100vh',
+position: 'relative', zIndex: 50,
       background: t.surface, borderRight: open ? `1px solid ${t.border}` : 'none',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
       pointerEvents: open ? 'auto' : 'none',
@@ -1411,7 +1412,7 @@ export default function App() {
           </div>
 
           {activeNav === 'dashboard' && (
-            <div style={{ position: 'relative', width: 240 }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: 240, flexGrow: 1 }}>
               <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: t.textSubtle, pointerEvents: 'none' }}>
                 <IconSearch />
               </span>
