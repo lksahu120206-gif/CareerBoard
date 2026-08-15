@@ -1447,7 +1447,7 @@ export default function App() {
               </div>
             </div>
             {/* Grid Layout Container - removes horizontal scrollbar and fits all 5 columns cleanly */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '18px 28px 28px', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, alignItems: 'flex-start' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '18px 28px 28px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, alignItems: 'flex-start' }}>
               {COLUMNS.map(col => (
                 <KanbanColumn
                   key={col.id} col={col} jobs={filtered.filter(j => j.column === col.id)}
