@@ -1396,14 +1396,14 @@ export default function App() {
       />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        <header style={{
-          height: 64, flexShrink: 0, background: t.surface,
-          borderBottom: `1px solid ${t.border}`,
-          display: 'flex', alignItems: 'center', padding: '0 28px', gap: 16,
-          transition: 'background 0.25s, border-color 0.25s',
-        }}>
-          {!sidebarOpen && <SidebarToggleBtn dark={dark} onToggle={() => setSidebarOpen(true)} />}
-
+  {/* Header */}
+  <header style={{
+    minHeight: 64, flexShrink: 0, background: t.surface,
+    borderBottom: `1px solid ${t.border}`,
+    display: 'flex', alignItems: 'center', flexWrap: 'wrap', padding: '12px 28px', gap: 12,
+    transition: 'background 0.25s, border-color 0.25s',
+  }}>
+    {!sidebarOpen && <SidebarToggleBtn dark={dark} onToggle={() => setSidebarOpen(true)} />}
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ fontFamily: "'Instrument Sans',sans-serif", fontSize: 17, fontWeight: 700, color: t.text, margin: 0, letterSpacing: -0.2 }}>
               {PAGE_TITLES[activeNav]}
