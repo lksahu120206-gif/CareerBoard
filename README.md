@@ -93,5 +93,3 @@ Open [http://localhost:5173](http://localhost:5173) in your browser to view the 
 ---
 
 > **Note:** This project demonstrates cloud scalability, secure data handling, and efficient content delivery for dynamic web applications.
-
-```
