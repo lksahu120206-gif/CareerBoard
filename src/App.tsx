@@ -768,27 +768,88 @@ function AnalyticsView({ jobs, dark }: { jobs: Job[]; dark: boolean }) {
 
 // ─── Resumes view ─────────────────────────────────────────────────────────────
 
-function ResumesView({ dark }: { dark: boolean }) {
+function ResumesView({ dark, session }: { dark: boolean; session: any }) {
   const t = T(dark)
-  const [resumes, setResumes] = useState([
-    { id: 'r1', name: 'Software_Engineer_Resume.pdf', size: '142 KB', updated: 'Aug 10, 2026', primary: true },
-    { id: 'r2', name: 'Frontend_Lead_Resume.pdf',     size: '138 KB', updated: 'Jul 28, 2026', primary: false },
-  ])
+  const [resumes, setResumes] = useState<any[]>([])
+  const [uploading, setUploading] = useState(false)
+
+  useEffect(() => {
+    fetchResumes()
+  }, [])
+
+  async function fetchResumes() {
+    const { data, error } = await supabase
+      .from('resumes')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (!error && data) setResumes(data)
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}.${fileExt}`
+      const filePath = `${session.user.id}/${fileName}`
+
+      // 1. Upload file to Supabase Storage bucket
+      const { error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      // 2. Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('resumes')
+        .getPublicUrl(filePath)
+
+      // 3. Save metadata to resumes table
+      const sizeFormatted = `${Math.round(file.size / 1024)} KB`
+      const { error: dbError } = await supabase.from('resumes').insert([{
+        user_id: session.user.id,
+        name: file.name,
+        size: sizeFormatted,
+        url: publicUrl,
+        is_primary: resumes.length === 0
+      }])
+
+      if (dbError) throw dbError
+      fetchResumes()
+    } catch (err: any) {
+      alert('Error uploading resume: ' + err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from('resumes').delete().eq('id', id)
+    if (!error) fetchResumes()
+  }
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '28px' }}>
-      <div style={{ background: t.surface, borderRadius: 12, border: `2px dashed ${t.border}`, padding: '36px', textAlign: 'center', marginBottom: 20, cursor: 'pointer' }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = t.primary)}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = t.border)}
-      >
-        <div style={{ color: t.textSubtle, marginBottom: 12 }}><IconUpload /></div>
-        <div style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: 14, color: t.text, marginBottom: 4 }}>Upload a Resume</div>
-        <div style={{ fontSize: 12, color: t.textSubtle }}>PDF, DOCX up to 5 MB</div>
-      </div>
+      <label style={{ display: 'block', marginBottom: 20, cursor: uploading ? 'not-allowed' : 'pointer' }}>
+        <div style={{ background: t.surface, borderRadius: 12, border: `2px dashed ${t.border}`, padding: '36px', textAlign: 'center' }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = t.primary)}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = t.border)}
+        >
+          <div style={{ color: t.textSubtle, marginBottom: 12 }}><IconUpload /></div>
+          <div style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: 14, color: t.text, marginBottom: 4 }}>
+            {uploading ? 'Uploading to database…' : 'Upload a Resume'}
+          </div>
+          <div style={{ fontSize: 12, color: t.textSubtle }}>PDF, DOCX up to 5 MB</div>
+        </div>
+        <input type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} disabled={uploading} style={{ display: 'none' }} />
+      </label>
 
       {resumes.map(r => (
         <div key={r.id} style={{
-          background: t.surface, borderRadius: 10, border: `1px solid ${r.primary ? t.primary : t.border}`,
+          background: t.surface, borderRadius: 10, border: `1px solid ${r.is_primary ? t.primary : t.border}`,
           padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10,
           boxShadow: `0 1px 3px rgba(0,0,0,${dark ? '0.2' : '0.05'})`,
         }}>
@@ -796,15 +857,17 @@ function ResumesView({ dark }: { dark: boolean }) {
             <IconResumes />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 2 }}>{r.name}</div>
-            <div style={{ fontSize: 11, color: t.textSubtle }}>{r.size} · Updated {r.updated}</div>
+            <a href={r.url} target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 2, textDecoration: 'none', display: 'block' }}>
+              {r.name}
+            </a>
+            <div style={{ fontSize: 11, color: t.textSubtle }}>{r.size} · Uploaded {new Date(r.created_at).toLocaleDateString()}</div>
           </div>
-          {r.primary && (
+          {r.is_primary && (
             <span style={{ fontSize: 11, fontWeight: 700, background: t.salaryBg, color: t.salaryText, borderRadius: 20, padding: '2px 8px' }}>
               Primary
             </span>
           )}
-          <button onClick={() => setResumes(prev => prev.filter(x => x.id !== r.id))} style={{
+          <button onClick={() => handleDelete(r.id)} style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: 28, height: 28, borderRadius: 6,
             background: 'transparent', border: 'none', color: t.danger, cursor: 'pointer',
@@ -1397,7 +1460,7 @@ export default function App() {
         )}
 
         {activeNav === 'analytics' && <AnalyticsView jobs={jobs} dark={dark} />}
-        {activeNav === 'resumes'   && <ResumesView dark={dark} />}
+        {activeNav === 'resumes'   && <ResumesView dark={dark} session={session} />}
         {activeNav === 'settings'  && <SettingsView dark={dark} onToggleDark={() => setDark(d => !d)} onSignOut={() => supabase.auth.signOut()} initialName={userName} initialEmail={userEmail} />}
       </div>
 
