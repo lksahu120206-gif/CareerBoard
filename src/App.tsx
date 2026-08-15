@@ -176,7 +176,7 @@ function DarkToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void })
   )
 }
 
-// ─── Sidebar toggle button ────────────────────────────────────────────────────
+// ─── Sidebar toggle button ────────────────────────────────────────────────    
 
 function SidebarToggleBtn({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
   const t = T(dark)
@@ -297,7 +297,6 @@ function JobModal({ dark, job, onClose, onSave, onDelete }: {
   const [column, setColumn]     = useState<ColumnId>(job?.column ?? 'wishlist')
   const [notes, setNotes]       = useState(job?.notes ?? '')
 
-  // This form submit function was missing in your code!
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!company.trim() || !title.trim()) return
@@ -437,7 +436,6 @@ function JobCard({ job, dark, onDragStart, onEdit, onDelete }: {
         userSelect: 'none', position: 'relative',
       }}
     >
-      {/* Company row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 9 }}>
         <div style={{
           width: 26, height: 26, borderRadius: 6,
@@ -452,7 +450,6 @@ function JobCard({ job, dark, onDragStart, onEdit, onDelete }: {
           {job.company}
         </span>
 
-        {/* Three-dot menu */}
         <div style={{ position: 'relative' }} onMouseDown={e => e.stopPropagation()} onClick={e => e.stopPropagation()}>
           <button
             onClick={e => { e.stopPropagation(); setMenuOpen(o => !o) }}
@@ -506,7 +503,6 @@ function JobCard({ job, dark, onDragStart, onEdit, onDelete }: {
         </div>
       </div>
 
-      {/* Job title */}
       <div style={{
         fontSize: 13.5, fontWeight: 600, color: t.text,
         fontFamily: "'Instrument Sans', sans-serif",
@@ -515,7 +511,6 @@ function JobCard({ job, dark, onDragStart, onEdit, onDelete }: {
         {job.title}
       </div>
 
-      {/* Bottom row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: t.textSubtle }}>
           <IconCalendar />
@@ -530,7 +525,6 @@ function JobCard({ job, dark, onDragStart, onEdit, onDelete }: {
         </span>
       </div>
 
-      {/* Notes indicator */}
       {job.notes && (
         <div style={{ marginTop: 8, fontSize: 11, color: t.textSubtle, fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {job.notes}
@@ -539,6 +533,7 @@ function JobCard({ job, dark, onDragStart, onEdit, onDelete }: {
     </div>
   )
 }
+
 // ─── Kanban Column ────────────────────────────────────────────────────────────
 
 function KanbanColumn({ col, jobs, dark, onDragStart, onDrop, onEdit, onDelete }: {
@@ -559,7 +554,7 @@ function KanbanColumn({ col, jobs, dark, onDragStart, onDrop, onEdit, onDelete }
       onDragLeave={() => setDragOver(false)}
       onDrop={() => { setDragOver(false); onDrop(col.id) }}
       style={{
-        minWidth: 272, width: 272, flexShrink: 0,
+        width: '100%', flexShrink: 0,
         display: 'flex', flexDirection: 'column',
         background: dragOver ? (dark ? '#2C3020' : '#D9EAF7') : (dark ? '#222222' : '#E8F1FA'),
         borderRadius: 12,
@@ -831,7 +826,6 @@ function SettingsView({ dark, onToggleDark, onSignOut, initialName, initialEmail
   const [email, setEmail] = useState(initialEmail)
   const [saved, setSaved] = useState(false)
 
-  // Real Supabase profile update!
   const save = async () => { 
     await supabase.auth.updateUser({
       data: { full_name: name }
@@ -940,14 +934,7 @@ const IconGitHub = ({ dark }: { dark: boolean }) => (
   </svg>
 )
 
-const IconLinkedIn = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <rect width="24" height="24" rx="4" fill="#0A66C2"/>
-    <path d="M7.5 9.5H5v9h2.5v-9zm-1.25-1A1.25 1.25 0 1 0 6.25 6 1.25 1.25 0 0 0 6.25 8.5zM19 14c0-2.5-1-4.5-3.5-4.5A3.2 3.2 0 0 0 13 11V9.5h-2.5v9H13v-5c0-1.1.5-2 1.75-2S17 12.7 17 14v4.5h2.5V14z" fill="#fff"/>
-  </svg>
-)
-
-function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark: () => void; onAuth: () => void }) {
+function AuthPage({ dark, onToggleDark }: { dark: boolean; onToggleDark: () => void; onAuth: () => void }) {
   const t = T(dark)
   const [mode, setMode]         = useState<'login' | 'signup'>('login')
   const [email, setEmail]       = useState('')
@@ -956,7 +943,6 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
   const [loading, setLoading]   = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
 
-  // FIX: This handleSubmit function now has its proper closing brace!
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -998,11 +984,6 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
     if (error) alert("GitHub Login Error: " + error.message);
   }
 
-  const handleLinkedinLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'linkedin_oidc' }); // Supabase uses OIDC for LinkedIn
-    if (error) alert("LinkedIn Login Error: " + error.message);
-  }
-
   const orbs: React.CSSProperties[] = [
     { position: 'absolute', width: 500, height: 500, borderRadius: '50%', top: -120, left: -140, background: dark ? 'radial-gradient(circle, rgba(107,142,35,0.18) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(0,123,255,0.12) 0%, transparent 70%)', filter: 'blur(40px)', pointerEvents: 'none' },
     { position: 'absolute', width: 420, height: 420, borderRadius: '50%', bottom: -100, right: -100, background: dark ? 'radial-gradient(circle, rgba(169,223,191,0.12) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(74,144,226,0.10) 0%, transparent 70%)', filter: 'blur(40px)', pointerEvents: 'none' },
@@ -1024,7 +1005,7 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
     transition: 'border-color 0.15s, box-shadow 0.15s, background 0.15s',
   })
 
-  const socialBtn = (label: string, icon: React.ReactNode): React.CSSProperties => ({
+  const socialBtn = (label: string): React.CSSProperties => ({
     width: '100%', height: 42, borderRadius: 9, border: `1.5px solid ${t.border}`,
     background: t.surface, color: t.text, cursor: 'pointer', display: 'flex',
     alignItems: 'center', justifyContent: 'center', gap: 10,
@@ -1054,7 +1035,6 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
           .auth-input::placeholder { color: ${t.textSubtle}; }
         `}</style>
 
-        {/* Logo */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
           <div style={{
             width: 44, height: 44, borderRadius: 12, marginBottom: 14,
@@ -1079,7 +1059,6 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
           </p>
         </div>
 
-        {/* Mode tabs */}
         <div style={{ display: 'flex', background: t.colBg, borderRadius: 10, padding: 4, marginBottom: 22, border: `1px solid ${t.border}` }}>
           {(['login', 'signup'] as const).map(m => (
             <button key={m} onClick={() => setMode(m)} style={{
@@ -1095,13 +1074,12 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
           ))}
         </div>
 
-        {/* Social buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
           {[
             { label: 'Continue with Google', icon: <IconGoogle />, action: handleGoogleLogin },
             { label: 'Continue with GitHub', icon: <IconGitHub dark={dark} />, action: handleGithubLogin },
           ].map(({ label, icon, action }) => (
-            <button key={label} type="button" onClick={action} style={socialBtn(label, icon)}
+            <button key={label} type="button" onClick={action} style={socialBtn(label)}
               onMouseEnter={e => { e.currentTarget.style.background = t.surfaceHover; e.currentTarget.style.borderColor = t.focusBorder }}
               onMouseLeave={e => { e.currentTarget.style.background = t.surface; e.currentTarget.style.borderColor = t.border }}
             >
@@ -1111,14 +1089,12 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
           ))}
         </div>
 
-        {/* OR divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <div style={{ flex: 1, height: 1, background: t.border }} />
           <span style={{ fontSize: 11, fontWeight: 600, color: t.textSubtle, letterSpacing: 0.8 }}>OR</span>
           <div style={{ flex: 1, height: 1, background: t.border }} />
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
           {mode === 'signup' && (
             <div style={{ marginBottom: 14 }}>
@@ -1173,7 +1149,6 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
           </button>
         </form>
 
-        {/* Footer */}
         <div style={{ textAlign: 'center', marginTop: 20 }}>
           <span style={{ fontSize: 13, color: t.textSubtle }}>
             {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
@@ -1187,7 +1162,6 @@ function AuthPage({ dark, onToggleDark, onAuth }: { dark: boolean; onToggleDark:
         </div>
       </div>
 
-      {/* Dark mode toggle top-right */}
       <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10 }}>
         <DarkToggle dark={dark} onToggle={onToggleDark} />
       </div>
@@ -1218,7 +1192,6 @@ export default function App() {
   const dragId = useRef<string | null>(null);
   const t = T(dark);
 
-  // --- SUPABASE AUTH LISTENER ---
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -1266,11 +1239,9 @@ export default function App() {
     if (!dragId.current) return;
     const movedJobId = dragId.current;
     
-    // 1. Instantly update the UI so it feels lightning fast
     setJobs(prev => prev.map(j => j.id === movedJobId ? { ...j, column: colId } : j));
     dragId.current = null;
 
-    // 2. Secretly update the Supabase database in the background
     try {
       const { error } = await supabase
         .from('jobs')
@@ -1278,13 +1249,11 @@ export default function App() {
         .eq('id', movedJobId);
 
       if (error) throw error;
-      console.log("Database updated successfully!");
     } catch (error: any) {
       console.error("Failed to update database:", error.message);
     }
   }
 
-  // 1. CREATE: Add a new job manually from the React UI
   const handleAddJob = async (data: Omit<Job, 'id'>) => {
     try {
       const { error } = await supabase
@@ -1296,13 +1265,12 @@ export default function App() {
         }]);
 
       if (error) throw error;
-      fetchLiveJobs(); // Instantly reload the board with the new data
+      fetchLiveJobs();
     } catch (error: any) {
       console.error("Error adding job:", error.message);
     }
   }
 
-  // 2. UPDATE: Edit an existing job card
   const handleEditJob = async (data: Omit<Job, 'id'>) => {
     if (!editingJob) return;
     try {
@@ -1313,27 +1281,26 @@ export default function App() {
           role: data.title, 
           status: data.column 
         })
-        .eq('id', editingJob.id); // Find the exact row by ID
+        .eq('id', editingJob.id);
 
       if (error) throw error;
-      fetchLiveJobs(); // Refresh UI
+      fetchLiveJobs();
     } catch (error: any) {
       console.error("Error editing job:", error.message);
     }
     setEditingJob(null);
   }
 
-  // 3. DELETE: Remove a job forever
   const handleDeleteJob = async () => {
     if (!deletingJob) return;
     try {
       const { error } = await supabase
         .from('jobs')
         .delete()
-        .eq('id', deletingJob.id); // Delete the exact row
+        .eq('id', deletingJob.id);
 
       if (error) throw error;
-      fetchLiveJobs(); // Refresh UI
+      fetchLiveJobs();
     } catch (error: any) {
       console.error("Error deleting job:", error.message);
     }
@@ -1350,13 +1317,10 @@ export default function App() {
     dashboard: 'My Applications', analytics: 'Analytics', resumes: 'Resumes', settings: 'Settings',
   }
 
-  // If no session exists, show the login page
   if (!session) return <AuthPage dark={dark} onToggleDark={() => setDark(d => !d)} onAuth={() => {}} />
 
-  // --- EXTRACT REAL USER DATA FROM SUPABASE SESSION ---
   const userEmail = session?.user?.email || '';
   const userName = session?.user?.user_metadata?.full_name || 'My Account';
-  // Grab the first letter of their first and last name to make the Avatar bubble
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
 
   return (
@@ -1369,7 +1333,6 @@ export default function App() {
       />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        {/* Header */}
         <header style={{
           height: 64, flexShrink: 0, background: t.surface,
           borderBottom: `1px solid ${t.border}`,
@@ -1403,7 +1366,6 @@ export default function App() {
           {activeNav === 'dashboard' && <NewAppButton dark={dark} onClick={() => setShowNewModal(true)} />}
         </header>
 
-        {/* Dashboard view */}
         {activeNav === 'dashboard' && (
           <>
             <div style={{ padding: '14px 28px 0', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -1421,7 +1383,8 @@ export default function App() {
                 {filtered.length} total applications
               </div>
             </div>
-            <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden', padding: '18px 28px 28px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+            {/* Grid Layout Container - removes horizontal scrollbar and fits all 5 columns cleanly */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '18px 28px 28px', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, alignItems: 'flex-start' }}>
               {COLUMNS.map(col => (
                 <KanbanColumn
                   key={col.id} col={col} jobs={filtered.filter(j => j.column === col.id)}
@@ -1438,7 +1401,6 @@ export default function App() {
         {activeNav === 'settings'  && <SettingsView dark={dark} onToggleDark={() => setDark(d => !d)} onSignOut={() => supabase.auth.signOut()} initialName={userName} initialEmail={userEmail} />}
       </div>
 
-      {/* Modals */}
       {showNewModal && (
         <JobModal dark={dark} onClose={() => setShowNewModal(false)} onSave={handleAddJob} />
       )}
