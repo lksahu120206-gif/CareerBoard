@@ -878,9 +878,9 @@ function ResumesView({ dark, session }: { dark: boolean; session: any }) {
 
 // ─── Settings view ────────────────────────────────────────────────────────────
 
-function SettingsView({ dark, onToggleDark, onSignOut, initialName, initialEmail }: { 
+function SettingsView({ dark, onToggleDark, onSignOut, initialName, initialEmail, jobs }: { 
   dark: boolean; onToggleDark: () => void; onSignOut: () => void;
-  initialName: string; initialEmail: string;
+  initialName: string; initialEmail: string; jobs: Job[];
 }) {
   const t = T(dark)
   const [name, setName]   = useState(initialName)
@@ -893,6 +893,45 @@ function SettingsView({ dark, onToggleDark, onSignOut, initialName, initialEmail
     });
     setSaved(true); 
     setTimeout(() => setSaved(false), 2000); 
+  }
+
+  // --- NEW: CSV Export Logic ---
+  const handleExportCSV = () => {
+    if (jobs.length === 0) {
+      alert("You don't have any applications to export yet!");
+      return;
+    }
+
+    // Define CSV headers
+    const headers = ['Company', 'Job Title', 'Salary', 'Date Applied', 'Status', 'Notes'];
+    const csvRows = [headers.join(',')];
+
+    // Loop through jobs and format each row
+    for (const job of jobs) {
+      // We wrap values in quotes and escape existing quotes to prevent CSV breaking from commas in notes/salaries
+      const row = [
+        `"${job.company.replace(/"/g, '""')}"`,
+        `"${job.title.replace(/"/g, '""')}"`,
+        `"${job.salary.replace(/"/g, '""')}"`,
+        `"${job.date.replace(/"/g, '""')}"`,
+        `"${job.column.replace(/"/g, '""')}"`,
+        `"${(job.notes || '').replace(/"/g, '""')}"`
+      ];
+      csvRows.push(row.join(','));
+    }
+
+    // Create a Blob from the CSV string
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create a hidden link and trigger the download
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'CareerBoard_Applications.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -958,7 +997,8 @@ function SettingsView({ dark, onToggleDark, onSignOut, initialName, initialEmail
           }}>Clear Data</button>
         </Row>
         <Row label="Export to CSV" sub="Download your applications as a spreadsheet">
-          <button style={{
+          {/* --- NEW: Added onClick handler here --- */}
+          <button onClick={handleExportCSV} style={{
             padding: '0 14px', height: 32, borderRadius: 8,
             background: t.colBg, border: `1px solid ${t.border}`,
             color: t.textMuted, cursor: 'pointer', fontSize: 12, fontWeight: 600,
@@ -1460,7 +1500,7 @@ export default function App() {
 
         {activeNav === 'analytics' && <AnalyticsView jobs={jobs} dark={dark} />}
         {activeNav === 'resumes'   && <ResumesView dark={dark} session={session} />}
-        {activeNav === 'settings'  && <SettingsView dark={dark} onToggleDark={() => setDark(d => !d)} onSignOut={() => supabase.auth.signOut()} initialName={userName} initialEmail={userEmail} />}
+        {activeNav === 'settings'  && <SettingsView dark={dark} onToggleDark={() => setDark(d => !d)} onSignOut={() => supabase.auth.signOut()} initialName={userName} initialEmail={userEmail} jobs={jobs} />}
       </div>
 
       {showNewModal && (
